@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Journal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>My Journal</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+        <p class="flash">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <form class="card" action="{{ url_for('create_entry') }}" method="post" enctype="multipart/form-data">
+      <h2>New entry</h2>
+      <input type="text" name="title" placeholder="Title (optional)">
+      <textarea name="body" rows="6" placeholder="Write your thoughts..."></textarea>
+      <label class="file">
+        Photo (optional)
+        <input type="file" name="photo" accept="image/*">
+      </label>
+      <button type="submit">Save entry</button>
+    </form>
+
+    <section>
+      <h2>Entries</h2>
+      {% for entry in entries %}
+        <article class="card entry">
+          <header>
+            <div>
+              <h3>{{ entry.title or "Untitled" }}</h3>
+              <time>{{ entry.created_at }}</time>
+            </div>
+            <form action="{{ url_for('delete_entry', entry_id=entry.id) }}" method="post"
+                  onsubmit="return confirm('Delete this entry?');">
+              <button class="link" type="submit">Delete</button>
+            </form>
+          </header>
+          {% if entry.photo %}
+            <img src="{{ url_for('uploaded_file', filename=entry.photo) }}" alt="Journal photo">
+          {% endif %}
+          {% if entry.body %}
+            <p class="body">{{ entry.body }}</p>
+          {% endif %}
+        </article>
+      {% else %}
+        <p class="empty">No entries yet. Write your first one above.</p>
+      {% endfor %}
+    </section>
+  </main>
+</body>
+</html>
